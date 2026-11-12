@@ -3,6 +3,27 @@ import json
 import socket
 import queue
 import time
+from socket import socket
+
+def get_local_ip():
+    """Return this machine's current LAN IPv4 address.
+
+    Run it on the Pi to find out what IP address it is currently using
+    (e.g. when DHCP hands it a new one). Falls back to "127.0.0.1" if no
+    network route can be found.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # No data is actually sent; this only picks the interface that
+        # would route to the internet, i.e. the one on your LAN.
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        s.close()
+
+
 class Client:
     def __init__(self,HOST:str,PORT:int):
         self.HOST = HOST
@@ -67,4 +88,3 @@ class Server:
     def recieve(self):
         return self.que.get()
 
-    
